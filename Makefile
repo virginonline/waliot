@@ -11,3 +11,5 @@ compose:
 	docker compose up
 create-env:
 	cp .env.example .env.local
+test:
+	./gradlew test
