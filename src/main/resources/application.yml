@@ -6,9 +6,11 @@ spring:
     cache-names: location
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST}
       port: 6379
       password: ${REDIS_PASSWORD}
+  main:
+    banner-mode: off
 yandex:
   url: https://geocode-maps.yandex.ru/1.x/
   key: ${YANDEX_API_KEY}

@@ -24,9 +24,16 @@ services:
     networks:
       - app-network
   app:
+    env_file:
+      - .env.local
+    container_name: app
     image: virginonline/waliot
     build:
       context: .
     depends_on:
       redis:
         condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
