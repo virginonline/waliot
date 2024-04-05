@@ -1,0 +1,32 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  cache:
+    driver: local
+services:
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    container_name: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+    command: redis-server --save 20 1 --loglevel warning --requirepass 128391893012908983ddd
+    volumes:
+      - cache:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+  app:
+    image: virginonline/waliot
+    build:
+      context: .
+    depends_on:
+      redis:
+        condition: service_healthy
