@@ -3,6 +3,7 @@ package com.virginonline.waliot.service;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.virginonline.waliot.apiclient.YandexApiClient;
 import com.virginonline.waliot.exception.CoordinatesException;
+import com.virginonline.waliot.exception.LocationNotFound;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,10 @@ public class LocationServiceImpl implements LocationService {
   private ObjectNode getLocationFromStreet(String geocode) {
     log.info("Geocode: {}", geocode);
 
-    return yandexApiClient.get(geocode);
+    return yandexApiClient
+        .get(geocode)
+        .orElseThrow(
+            () -> new LocationNotFound("Could not get geocode from %s".formatted(geocode)));
   }
 
   /**
@@ -55,7 +59,11 @@ public class LocationServiceImpl implements LocationService {
     // Latitude must be a number between -90 and 90 and Longitude must be a number between -180 and
     // 180
     if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
-      return yandexApiClient.get("%f,%f".formatted(lat, lon));
+      return yandexApiClient
+          .get("%f,%f".formatted(lat, lon))
+          .orElseThrow(
+              () ->
+                  new LocationNotFound("Could not get coordinates from %f,%f".formatted(lat, lon)));
     } else {
       throw new CoordinatesException(
           "lat and lon must be between -90 and 90 and -180 and 180 \n lat: %f lon: %f"

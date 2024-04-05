@@ -1,6 +1,7 @@
 package com.virginonline.waliot.apiclient;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Optional;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface YandexApiClient {
 
   @GetMapping
-  ObjectNode get(@RequestParam String geocode);
+  Optional<ObjectNode> get(@RequestParam String geocode);
 }
