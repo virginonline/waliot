@@ -1,10 +1,14 @@
 package com.virginonline.waliot.service;
 
+import static com.virginonline.waliot.utils.GeocodeValidation.isCoordinates;
+import static com.virginonline.waliot.utils.GeocodeValidation.isValidCoordinates;
+import static com.virginonline.waliot.utils.GeocodeValidation.parseCoordinates;
+import static com.virginonline.waliot.utils.GeocodeValidation.validateGeocode;
+
 import com.virginonline.waliot.apiclient.YandexApiClient;
 import com.virginonline.waliot.dto.GeoLocatorDto;
 import com.virginonline.waliot.exception.CoordinatesException;
 import com.virginonline.waliot.exception.LocationNotFound;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,16 +21,18 @@ public class LocationServiceImpl implements LocationService {
 
   private final YandexApiClient yandexApiClient;
 
+  /**
+   * Get coordinates from geocode
+   *
+   * @param geocode geocode of the address or coordinates
+   * @return {@link GeoLocatorDto} from cache or from api if not in cache
+   */
   @Cacheable(value = "location", key = "#geocode")
   @Override
   public GeoLocatorDto getLocation(String geocode) {
-    if (geocode == null || geocode.isEmpty()) {
-      throw new IllegalArgumentException("Geocode cannot be null or empty");
-    }
-
+    validateGeocode(geocode);
     if (isCoordinates(geocode)) {
-      var coordinates =
-          Arrays.stream(geocode.split(",")).mapToDouble(Double::parseDouble).toArray();
+      var coordinates = parseCoordinates(geocode);
       return getLocationFromCoordinates(coordinates[0], coordinates[1]);
     }
     return getLocationFromStreet(geocode);
@@ -35,8 +41,8 @@ public class LocationServiceImpl implements LocationService {
   /**
    * Get coordinates from geocode
    *
-   * @param geocode
-   * @return object with coordinates
+   * @param geocode geocode of the address
+   * @return {@link GeoLocatorDto} with coordinates
    */
   private GeoLocatorDto getLocationFromStreet(String geocode) {
     log.info("Geocode: {}", geocode);
@@ -50,15 +56,13 @@ public class LocationServiceImpl implements LocationService {
   /**
    * Get coordinates from longitude and latitude
    *
-   * @param lat
-   * @param lon
-   * @return object with coordinates
+   * @param lat latitude
+   * @param lon longitude
+   * @return {@link GeoLocatorDto} with coordinates
    */
   private GeoLocatorDto getLocationFromCoordinates(double lat, double lon) {
     log.info("Latitude: {}, Longitude: {}", lat, lon);
-    // Latitude must be a number between -90 and 90 and Longitude must be a number between -180 and
-    // 180
-    if (Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
+    if (isValidCoordinates(lat, lon)) {
       return yandexApiClient
           .get("%f,%f".formatted(lat, lon))
           .orElseThrow(
@@ -69,24 +73,5 @@ public class LocationServiceImpl implements LocationService {
           "lat and lon must be between -90 and 90 and -180 and 180 \n lat: %f lon: %f"
               .formatted(lat, lon));
     }
-  }
-
-  /**
-   * Check if geocode contains coordinates
-   *
-   * @param geocode
-   * @return true if geocode contains coordinates
-   */
-  private boolean isCoordinates(String geocode) {
-    String[] parts = geocode.split(",");
-    if (parts.length == 2) {
-      try {
-        Arrays.stream(parts).mapToDouble(Double::parseDouble).toArray();
-        return true;
-      } catch (NumberFormatException e) {
-        return false;
-      }
-    }
-    return false;
   }
 }

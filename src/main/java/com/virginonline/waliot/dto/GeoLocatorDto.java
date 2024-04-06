@@ -5,6 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Geolocator response object
+ *
+ * @param response object with coordinates
+ * @see <a href="https://yandex.com/dev/geocode/doc/ru/response#params">Geocoder response
+ *     parameters</a>
+ */
 public record GeoLocatorDto(@JsonProperty("response") ResponseDto response)
     implements Serializable {
 
