@@ -17,6 +17,7 @@ import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollection
 import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollectionDto.FeatureMemberDto.GeoObjectDto.PointDto;
 import com.virginonline.waliot.service.LocationService;
 import java.util.Collections;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ class LocationControllerTest {
   @MockBean private LocationService locationService;
 
   @Test
+  @DisplayName("Get location from coordinates")
   public void testGetLocation_Success_From_Coordinates() throws Exception {
 
     // Arrange
@@ -71,6 +73,7 @@ class LocationControllerTest {
   }
 
   @Test
+  @DisplayName("Get location from street")
   public void testGetLocation_Success_From_Street() throws Exception {
 
     // Arrange

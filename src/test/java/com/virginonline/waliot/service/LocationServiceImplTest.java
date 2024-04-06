@@ -16,6 +16,7 @@ import com.virginonline.waliot.exception.LocationNotFound;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -34,6 +35,7 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should get location from geocode")
   void testGetLocation() {
     // Arrange
     final Optional<GeoLocatorDto> geoLocatorDto =
@@ -61,6 +63,7 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should throw LocationNotFound")
   void testGetLocation_YandexApiClientReturnsAbsent() {
     // Arrange
     when(mockYandexApiClient.get("geocode")).thenReturn(Optional.empty());
@@ -71,6 +74,7 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should get location from coordinates")
   void testGetLocationFromCoordinates() {
     // Arrange
     final Optional<GeoLocatorDto> geoLocatorDto =
@@ -103,6 +107,7 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should get location from street")
   void testGetLocationFromStreet() {
     // Arrange
     final Optional<GeoLocatorDto> geoLocatorDto =
@@ -129,22 +134,19 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should throw IllegalArgumentException")
   void testGetLocationWithNullGeocode() {
     // Act & Assert
     assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(null))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Geocode cannot be null or empty");
-  }
-
-  @Test
-  void testGetLocationWithEmptyGeocode() {
-    // Act & Assert
     assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(""))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Geocode cannot be null or empty");
   }
 
   @Test
+  @DisplayName("Should throw LocationNotFound")
   void testGetLocationWithInvalidGeocode() {
     // Arrange
     final String invalidGeocode = "invalid_geocode";
@@ -156,6 +158,7 @@ class LocationServiceImplTest {
   }
 
   @Test
+  @DisplayName("Should throw CoordinatesException")
   void testGetLocationWithInvalidCoordinates() {
     // Arrange
     final String invalidCoordinates = "1000.333,2000.333";
