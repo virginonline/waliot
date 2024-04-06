@@ -45,8 +45,7 @@ public class LocationServiceImpl implements LocationService {
    * @return {@link GeoLocatorDto} with coordinates
    */
   private GeoLocatorDto getLocationFromStreet(String geocode) {
-    log.info("Geocode: {}", geocode);
-
+    log.info("Fetching coordinates from geocode: {}", geocode);
     return yandexApiClient
         .get(geocode)
         .orElseThrow(
@@ -61,7 +60,7 @@ public class LocationServiceImpl implements LocationService {
    * @return {@link GeoLocatorDto} with coordinates
    */
   private GeoLocatorDto getLocationFromCoordinates(double lat, double lon) {
-    log.info("Latitude: {}, Longitude: {}", lat, lon);
+    log.info("Fetching coordinates from lat: {} lon: {}", lat, lon);
     if (isValidCoordinates(lat, lon)) {
       return yandexApiClient
           .get("%f,%f".formatted(lat, lon))

@@ -28,7 +28,9 @@ management:
     metrics:
       export:
         enabled: true
-
+logging:
+  pattern:
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
 yandex:
   url: https://geocode-maps.yandex.ru/1.x/
   key: ${YANDEX_API_KEY}
