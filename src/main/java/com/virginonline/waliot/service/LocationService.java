@@ -1,7 +1,7 @@
 package com.virginonline.waliot.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.virginonline.waliot.dto.GeoLocatorDto;
 
 public interface LocationService {
-  ObjectNode getLocation(String geocode);
+  GeoLocatorDto getLocation(String geocode);
 }

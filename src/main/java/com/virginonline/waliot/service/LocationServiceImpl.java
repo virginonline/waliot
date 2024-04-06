@@ -1,7 +1,7 @@
 package com.virginonline.waliot.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.virginonline.waliot.apiclient.YandexApiClient;
+import com.virginonline.waliot.dto.GeoLocatorDto;
 import com.virginonline.waliot.exception.CoordinatesException;
 import com.virginonline.waliot.exception.LocationNotFound;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ public class LocationServiceImpl implements LocationService {
 
   @Cacheable(value = "location", key = "#geocode")
   @Override
-  public ObjectNode getLocation(String geocode) {
+  public GeoLocatorDto getLocation(String geocode) {
     if (geocode == null || geocode.isEmpty()) {
       throw new IllegalArgumentException("Geocode cannot be null or empty");
     }
@@ -38,7 +38,7 @@ public class LocationServiceImpl implements LocationService {
    * @param geocode
    * @return object with coordinates
    */
-  private ObjectNode getLocationFromStreet(String geocode) {
+  private GeoLocatorDto getLocationFromStreet(String geocode) {
     log.info("Geocode: {}", geocode);
 
     return yandexApiClient
@@ -54,7 +54,7 @@ public class LocationServiceImpl implements LocationService {
    * @param lon
    * @return object with coordinates
    */
-  private ObjectNode getLocationFromCoordinates(double lat, double lon) {
+  private GeoLocatorDto getLocationFromCoordinates(double lat, double lon) {
     log.info("Latitude: {}, Longitude: {}", lat, lon);
     // Latitude must be a number between -90 and 90 and Longitude must be a number between -180 and
     // 180

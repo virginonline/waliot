@@ -1,5 +1,7 @@
 # waliot 🗺️
 
+[![Build](https://github.com/virginonline/waliot/actions/workflows/main-ci.yml/badge.svg)](https://github.com/virginonline/waliot/actions/workflows/main-ci.yml)
+
 ## Как запустить
 
 Для запуска необходим ключ от [yandex map api](https://yandex.ru/maps-api/)
@@ -22,4 +24,10 @@ make compose
 
 ```shell
 docker compose up
+```
+
+Запуск тестов. Тесты также включены в пайплайн github actions
+
+```shell
+make test
 ```

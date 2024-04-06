@@ -4,16 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.virginonline.waliot.apiclient.YandexApiClient;
+import com.virginonline.waliot.dto.GeoLocatorDto;
+import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto;
+import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollectionDto;
+import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollectionDto.FeatureMemberDto;
+import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollectionDto.FeatureMemberDto.GeoObjectDto;
+import com.virginonline.waliot.dto.GeoLocatorDto.ResponseDto.GeoObjectCollectionDto.FeatureMemberDto.GeoObjectDto.PointDto;
+import com.virginonline.waliot.exception.CoordinatesException;
 import com.virginonline.waliot.exception.LocationNotFound;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,7 +26,7 @@ class LocationServiceImplTest {
 
   @Mock private YandexApiClient mockYandexApiClient;
 
-  @InjectMocks private LocationServiceImpl locationServiceImplUnderTest;
+  private LocationServiceImpl locationServiceImplUnderTest;
 
   @BeforeEach
   void setUp() {
@@ -30,57 +34,27 @@ class LocationServiceImplTest {
   }
 
   @Test
-  void testGetLocationFromCoordinates() {
-    // Arrange
-    final ObjectNode expectedResult = new ObjectNode(new JsonNodeFactory(false));
-    var coordinates =
-        Arrays.stream("25.197300,55.274243".split(",")).mapToDouble(Double::parseDouble).toArray();
-    // Act
-    final Optional<ObjectNode> jsonNodes = Optional.of(new ObjectNode(new JsonNodeFactory(false)));
-    when(mockYandexApiClient.get("%f,%f".formatted(coordinates[0], coordinates[1])))
-        .thenReturn(jsonNodes);
-    final ObjectNode result =
-        locationServiceImplUnderTest.getLocation("%f,%f".formatted(coordinates[0], coordinates[1]));
-    // Assert
-    assertThat(result).isEqualTo(expectedResult);
-  }
-
-  @Test
-  void testGetLocationFromStreet() {
-    // Arrange
-    final ObjectNode expectedResult = new ObjectNode(new JsonNodeFactory(false));
-    // Act
-    final Optional<ObjectNode> jsonNodes = Optional.of(new ObjectNode(new JsonNodeFactory(false)));
-    when(mockYandexApiClient.get("бул+Мухаммед+Бин+Рашид,+дом+1")).thenReturn(jsonNodes);
-    final ObjectNode result =
-        locationServiceImplUnderTest.getLocation("бул+Мухаммед+Бин+Рашид,+дом+1");
-    // Assert
-    assertThat(result).isEqualTo(expectedResult);
-  }
-
-  @Test
-  void testGetLocation_YandexApiClientReturnsPresent() {
-    // Arrange
-    final ObjectNode expectedResult = new ObjectNode(new JsonNodeFactory(false));
-
-    // Act
-    final Optional<ObjectNode> jsonNodes = Optional.of(new ObjectNode(new JsonNodeFactory(false)));
-    when(mockYandexApiClient.get("geocode")).thenReturn(jsonNodes);
-    final ObjectNode result = locationServiceImplUnderTest.getLocation("geocode");
-
-    // Assert
-    assertThat(result).isEqualTo(expectedResult);
-  }
-
-  @Test
   void testGetLocation() {
     // Arrange
-    final ObjectNode expectedResult = new ObjectNode(new JsonNodeFactory(false));
+    final Optional<GeoLocatorDto> geoLocatorDto =
+        Optional.of(
+            new GeoLocatorDto(
+                new ResponseDto(
+                    new GeoObjectCollectionDto(
+                        List.of(
+                            new FeatureMemberDto(
+                                new GeoObjectDto(new PointDto("pos"), "name", "description")))))));
+    when(mockYandexApiClient.get("geocode")).thenReturn(geoLocatorDto);
+    final GeoLocatorDto expectedResult =
+        new GeoLocatorDto(
+            new ResponseDto(
+                new GeoObjectCollectionDto(
+                    List.of(
+                        new FeatureMemberDto(
+                            new GeoObjectDto(new PointDto("pos"), "name", "description"))))));
 
     // Act
-    final Optional<ObjectNode> jsonNodes = Optional.of(new ObjectNode(new JsonNodeFactory(false)));
-    when(mockYandexApiClient.get("geocode")).thenReturn(jsonNodes);
-    final ObjectNode result = locationServiceImplUnderTest.getLocation("geocode");
+    final GeoLocatorDto result = locationServiceImplUnderTest.getLocation("geocode");
 
     // Assert
     assertThat(result).isEqualTo(expectedResult);
@@ -94,5 +68,100 @@ class LocationServiceImplTest {
     // Act & Assert
     assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation("geocode"))
         .isInstanceOf(LocationNotFound.class);
+  }
+
+  @Test
+  void testGetLocationFromCoordinates() {
+    // Arrange
+    final Optional<GeoLocatorDto> geoLocatorDto =
+        Optional.of(
+            new GeoLocatorDto(
+                new ResponseDto(
+                    new GeoObjectCollectionDto(
+                        List.of(
+                            new FeatureMemberDto(
+                                new GeoObjectDto(
+                                    new PointDto("25.197300 55.274243"),
+                                    "Name",
+                                    "Description")))))));
+    when(mockYandexApiClient.get("%f,%f".formatted(25.197300, 55.274243)))
+        .thenReturn(geoLocatorDto);
+    final GeoLocatorDto expectedResult =
+        new GeoLocatorDto(
+            new ResponseDto(
+                new GeoObjectCollectionDto(
+                    List.of(
+                        new FeatureMemberDto(
+                            new GeoObjectDto(
+                                new PointDto("25.197300 55.274243"), "Name", "Description"))))));
+
+    // Act
+    final GeoLocatorDto result = locationServiceImplUnderTest.getLocation("25.197300,55.274243");
+
+    // Assert
+    assertThat(result).isEqualTo(expectedResult);
+  }
+
+  @Test
+  void testGetLocationFromStreet() {
+    // Arrange
+    final Optional<GeoLocatorDto> geoLocatorDto =
+        Optional.of(
+            new GeoLocatorDto(
+                new ResponseDto(
+                    new GeoObjectCollectionDto(
+                        List.of(
+                            new FeatureMemberDto(
+                                new GeoObjectDto(null, "Name", "Description")))))));
+    when(mockYandexApiClient.get("бул+Мухаммед+Бин+Рашид,+дом+1")).thenReturn(geoLocatorDto);
+    final GeoLocatorDto expectedResult =
+        new GeoLocatorDto(
+            new ResponseDto(
+                new GeoObjectCollectionDto(
+                    List.of(new FeatureMemberDto(new GeoObjectDto(null, "Name", "Description"))))));
+
+    // Act
+    final GeoLocatorDto result =
+        locationServiceImplUnderTest.getLocation("бул+Мухаммед+Бин+Рашид,+дом+1");
+
+    // Assert
+    assertThat(result).isEqualTo(expectedResult);
+  }
+
+  @Test
+  void testGetLocationWithNullGeocode() {
+    // Act & Assert
+    assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Geocode cannot be null or empty");
+  }
+
+  @Test
+  void testGetLocationWithEmptyGeocode() {
+    // Act & Assert
+    assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(""))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Geocode cannot be null or empty");
+  }
+
+  @Test
+  void testGetLocationWithInvalidGeocode() {
+    // Arrange
+    final String invalidGeocode = "invalid_geocode";
+
+    // Act & Assert
+    assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(invalidGeocode))
+        .isInstanceOf(LocationNotFound.class)
+        .hasMessage("Could not get geocode from %s".formatted(invalidGeocode));
+  }
+
+  @Test
+  void testGetLocationWithInvalidCoordinates() {
+    // Arrange
+    final String invalidCoordinates = "1000.333,2000.333";
+
+    // Act & Assert
+    assertThatThrownBy(() -> locationServiceImplUnderTest.getLocation(invalidCoordinates))
+        .isInstanceOf(CoordinatesException.class);
   }
 }

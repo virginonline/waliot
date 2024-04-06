@@ -5,6 +5,8 @@ spring:
     name: waliot
   cache:
     type: redis
+    redis:
+      enable-statistics: true
     cache-names: location
   data:
     redis:
@@ -13,6 +15,20 @@ spring:
       password: ${REDIS_PASSWORD}
   main:
     banner-mode: off
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 yandex:
   url: https://geocode-maps.yandex.ru/1.x/
   key: ${YANDEX_API_KEY}

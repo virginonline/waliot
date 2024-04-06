@@ -11,5 +11,7 @@ compose:
 	docker compose up
 create-env:
 	cp .env.example .env.local
+bootJar:
+	./gradlew bootJar
 test:
 	./gradlew test
