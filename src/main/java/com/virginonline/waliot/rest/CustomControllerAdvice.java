@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CustomControllerAdvice {
 
   @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<ExceptionBody> handle(IllegalArgumentException e) {
     return new ResponseEntity<>(new ExceptionBody(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(CoordinatesException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<ExceptionBody> handle(CoordinatesException e) {
     return new ResponseEntity<>(new ExceptionBody(e.getMessage()), HttpStatus.BAD_REQUEST);
   }
